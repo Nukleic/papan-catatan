@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Papan Catatan Proyek - Cyber Neon</title>
+  
+  <!-- Memanggil font modern & perpustakaan ikon -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  
+  <style>
+    /* 1. Lahan Background Cyberpunk (Modern Gradient + Grid) */
+    body {
+      background: linear-gradient(135deg, #0f0c1b, #1b163a, #0b1528);
+      color: #e0e6ed;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 40px 20px;
+      margin: 0;
+      min-height: 100vh;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+
+    /* Efek Grid Halus pada Background */
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(rgba(18, 16, 35, 0.4) 1px, transparent 1px),
+                  linear-gradient(90deg, rgba(18, 16, 35, 0.4) 1px, transparent 1px);
+      background-size: 30px 30px;
+      z-index: -1;
+    }
+
+    /* 2. Kartu Utama Kaca (Premium Glassmorphism & Cyber Outline) */
+    .wadah-catatan {
+      background: rgba(20, 15, 38, 0.65);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(13, 110, 253, 0.25);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 
+                  0 0 25px rgba(13, 110, 253, 0.15);
+      padding: 25px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 450px;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    /* Aksesoris Sudut Menyala */
+    .wadah-catatan::before {
+      content: "";
+      position: absolute;
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #0d6efd, transparent, #9d4edd);
+      z-index: -1;
+      opacity: 0.4;
+    }
+
+    /* Judul & Ikon */
+    .header-app {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .icon-utama {
+      font-size: 45px;
+      color: #00f0ff;
+      filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.6));
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    h2 {
+      margin: 0;
+      font-weight: 700;
+      font-size: 24px;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, #00f0ff, #9d4edd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+    }
+
+    /* 3. SISTEM PROGRESS BAR (Glow Indicator) */
+    .wadah-progres {
+      margin-bottom: 25px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 12px 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .info-progres {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #00f0ff;
+    }
+
+    .progress-bar-bg {
+      background: rgba(0, 0, 0, 0.4);
+      height: 8px;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      background: linear-gradient(90deg, #00f0ff, #0d6efd);
+      height: 100%;
+      width: 0%; /* Diatur dinamis lewat JS */
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
+      transition: width 0.5s ease; /* Transisi progress meluncur mulus */
+    }
+
+    /* 4. Area Input (Neon Interactive) */
+    .area-input {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    input {
+      flex: 1;
+      padding: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      font-size: 15px;
+      background-color: rgba(0, 0, 0, 0.4);
+      color: white;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    input:focus {
+      border-color: #00f0ff;
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .tombol-tambah {
+      background: linear-gradient(135deg, #0d6efd, #00f0ff);
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+      box-shadow: 0 0 10px rgba(13, 110, 253, 0.4);
+    }
+
+    .tombol-tambah:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.7);
+    }
+
+    /* 5. Daftar Tugas (Visual Hover & Glow Elements) */
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      background: rgba(0, 0, 0, 0.3);
+      margin-bottom: 12px;
+      padding: 15px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.3s;
+      box-sizing: border-box;
+      /* Pemicu animasi slide-in pas baru lahir */
+      animation: slideIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    li:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(0, 240, 255, 0.2);
+      transform: translateX(4px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Desain teks biasa & lunas */
+    .teks-tugas {
+      flex: 1;
+      cursor: pointer;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s ease;
+    }
+
+    /* Ikon Centang Dinamis */
+    .teks-tugas::before {
+      content: "\f0c8"; /* Kotak kosong (font awesome) */
+      font-family: "Font Awesome 6 Free";
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    /* Kondisi kalau tugas Lunas (.selesai) */
+    .selesai {
+      color: rgba(255, 255, 255, 0.3);
+      text-decoration: line-through;
+      font-style: italic;
+    }
+
+    .selesai::before {
+      content: "\f14a"; /* Kotak tercentang (font awesome) */
+      font-weight: 900;
+      color: #00f0ff;
+      filter: drop-shadow(0 0 5px rgba(0, 240, 255, 0.5));
+    }
+
+    /* Tombol Delete di tiap baris */
+    .tombol-hapus {
+      background-color: rgba(220, 53, 69, 0.1);
+      border: 1px solid rgba(220, 53, 69, 0.3);
+      color: #ff4d4d;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-left: 10px;
+    }
+
+    .tombol-hapus:hover {
+      background-color: #dc3545;
+      color: white;
+      transform: scale(1.15);
+      box-shadow: 0 0 10px rgba(220, 53, 69, 0.6);
+    }
+
+    /* 6. Tombol Sapu Jagat (Cyber Yellow Neon) */
+    .tombol-reset {
+      background: linear-gradient(135deg, #ff9e00, #ff6000);
+      color: white;
+      border: none;
+      padding: 14px;
+      width: 100%;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 15px;
+      letter-spacing: 1px;
+      margin-top: 20px;
+      transition: all 0.3s;
+      display: none; /* Standby tak kasat mata */
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(255, 96, 0, 0.3);
+    }
+
+    .tombol-reset:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(255, 158, 0, 0.7);
+    }
+
+    /* 7. Branding "MADE BY RANGGA" di bawah */
+    .signature {
+      font-size: 11px;
+      font-weight: bold;
+      color: rgba(255, 255, 255, 0.25);
+      letter-spacing: 2px;
+      margin-top: 20px;
+      text-transform: uppercase;
+      animation: heartbeat 3s infinite alternate;
+    }
+
+    /* Keyframes Animasi */
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes heartbeat {
+      0% { opacity: 0.25; }
+      100% { opacity: 0.5; filter: drop-shadow(0 0 5px rgba(0, 240, 255, 0.5)); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Wadah Kartu Utama -->
+  <div class="wadah-catatan">
+    <div class="header-app">
+      <i class="fas fa-clipboard-list icon-utama"></i>
+      <h2>Catatan Proyek</h2>
+    </div>
+
+    <!-- 1. PROGRESS BAR BARU -->
+    <div class="wadah-progres">
+      <div class="info-progres">
+        <span>Aktivitas Proyek</span>
+        <span id="angkaProgres">Selesai: 0/0 (0%)</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="barProgres"></div>
+      </div>
+    </div>
+    
+    <!-- 2. AREA INPUT -->
+    <div class="area-input">
+      <input type="text" id="kolomTugas" placeholder="Tulis tugas di sini..." autofocus>
+      <button class="tombol-tambah" onclick="tambahCatatan()">
+        <i class="fas fa-plus"></i>
+      </button>
+    </div>
+
+    <!-- 3. LIST UTAMA -->
+    <ul id="daftarTugas"></ul>
+
+    <!-- 4. TOMBOL RESET -->
+    <button class="tombol-reset" id="tombolReset" onclick="hapusSemua()">
+      <i class="fas fa-trash-alt"></i> Bersihkan Semua
+    </button>
+  </div>
+
+  <!-- Identitas Keren -->
+  <div class="signature">MADE BY Nukleic</div>
+
+  <script>
+    // 1. FUNGSI UTAMA: Tambah Catatan
+    function tambahCatatan() {
+      let kolom = document.getElementById("kolomTugas");
+      let teksTugas = kolom.value.trim();
+
+      if (teksTugas === "") {
+        alert("Tulis dulu tugasnya, bro!");
+        return;
+      }
+
+      let daftar = document.getElementById("daftarTugas");
+      let catatanBaru = document.createElement("li");
+
+      // Set HTML-nya (termasuk tag span buat memicu saklar coretTugas)
+      catatanBaru.innerHTML = '<span class="teks-tugas" onclick="coretTugas(this)">' + teksTugas + '</span> <button class="tombol-hapus" onclick="hapusCatatan(this)"><i class="fas fa-trash"></i></button>';
+      
+      daftar.appendChild(catatanBaru);
+      kolom.value = "";
+      
+      simpanData();
+    }
+
+    // 2. FUNGSI: Hapus Satu Tugas
+    function hapusCatatan(tombolYangDiklik) {
+      tombolYangDiklik.parentElement.remove();
+      simpanData();
+    }
+
+    // 3. FUNGSI: Coret/Lunas Tugas
+    function coretTugas(teksYangDiklik) {
+      teksYangDiklik.classList.toggle("selesai");
+      simpanData();
+    }
+
+    // 4. FUNGSI: Hapus Semua (Sapu Jagat)
+    function hapusSemua() {
+      let konfirmasi = confirm("Yakin mau bersihin semua catatan bro?");
+      if(konfirmasi) {
+        document.getElementById("daftarTugas").innerHTML = "";
+        simpanData();
+      }
+    }
+
+    // 5. BRANKAS DATA + HITUNG PROGRESS DINAMIS
+    function simpanData() {
+      let daftar = document.getElementById("daftarTugas").innerHTML;
+      localStorage.setItem("brankas_catatan", daftar);
+      perbaruiMetrikDanTombol(); // Di-upgrade biar progresnya langsung ke-update setiap kali disimpan
+    }
+
+    function muatData() {
+      let dataTersimpan = localStorage.getItem("brankas_catatan");
+      if (dataTersimpan) {
+        document.getElementById("daftarTugas").innerHTML = dataTersimpan;
+      }
+      perbaruiMetrikDanTombol();
+    }
+
+    // 6. MESIN PERHITUNGAN BAR PROGRESS
+    function perbaruiMetrikDanTombol() {
+      let daftar = document.getElementById("daftarTugas");
+      let tombolReset = document.getElementById("tombolReset");
+      let bar = document.getElementById("barProgres");
+      let teksProgres = document.getElementById("angkaProgres");
+
+      // Total seluruh tugas
+      let totalTugas = daftar.children.length;
+      
+      // Cari tugas yang ada class "selesai" di dalamnya
+      let totalSelesai = 0;
+      for (let i = 0; i < totalTugas; i++) {
+        let span = daftar.children[i].querySelector(".teks-tugas");
+        if (span && span.classList.contains("selesai")) {
+          totalSelesai++;
+        }
+      }
+
+      // Hitung persentasenya
+      let persentase = totalTugas > 0 ? Math.round((totalSelesai / totalTugas) * 100) : 0;
+
+      // Update Angka dan Lebar Progress Bar
+      teksProgres.innerText = `Selesai: ${totalSelesai} dari ${totalTugas} Tugas (${persentase}%)`;
+      bar.style.width = persentase + "%";
+
+      // Saklar tampil/tidaknya tombol kuning Sapu Jagat
+      if (totalTugas > 0) {
+        tombolReset.style.display = "block";
+      } else {
+        tombolReset.style.display = "none";
+      }
+    }
+
+    muatData(); // Buka brankas otomatis di awal
+
+    // SENSOR TOMBOL ENTER
+    let kolomInput = document.getElementById("kolomTugas");
+    kolomInput.addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        tambahCatatan();
+      }
+    });
+  </script>
+
+</body>
+</html>
